@@ -1,5 +1,16 @@
 <html>
     <head>
+        <style>
+            html, body {
+               margin: 0;
+               height: 100%;
+            }
+            #c {
+               width: 100%;
+               height: 100%;
+               display: block;
+            }
+        </style>
         <script type="module">
             import * as THREE from './resources/threejs/three.module.js'; // Vedi nota fondo pagina gestione paths a: https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html
             function main(){
@@ -50,6 +61,14 @@
                 function render(time){
                     time *= 0.001;
 
+                    //Ridimensionamento responsive del canvas
+                    if (resizeRendererToDisplaySize(renderer)) {
+                        //Se ho ridimensionato il canvas devo aggiornare l'aspect della camera
+                        const canvas = renderer.domElement;
+                        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                        camera.updateProjectionMatrix();
+                    }
+
                     cubes.forEach((cube, ndx) => { //Animazione con velocità differente per ogni cubo
                         const speed = 1 + ndx * .1;
                         const rot = time * speed;
@@ -61,6 +80,18 @@
                     requestAnimationFrame(render);
                 }
                 requestAnimationFrame(render);
+
+                //Aggiorna le dimensioni del rendering del canvas a quelle effettive del canvas sulla pagina
+                function resizeRendererToDisplaySize(renderer) {
+                    const canvas = renderer.domElement;
+                    const width = canvas.clientWidth;
+                    const height = canvas.clientHeight;
+                    const needResize = canvas.width !== width || canvas.height !== height;
+                    if (needResize) {
+                        renderer.setSize(width, height, false);
+                    }
+                    return needResize;
+                }
             }
             
             main();
