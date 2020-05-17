@@ -106,6 +106,19 @@
                         const lineGeometry = new THREE.EdgesGeometry(geometry, thresholdAngle)
                         addLineGeometry(-30, 0, lineGeometry);
                     } 
+                    //Sfera a punti
+                    {
+                        const radius = 7;
+                        const widthSegments = 12;
+                        const heightSegments = 8;
+                        const geometry = new THREE.SphereBufferGeometry(radius, widthSegments, heightSegments);
+                        const material = new THREE.PointsMaterial({
+                            color: 'red',
+                            size: 1,     // in world units
+                        });
+                        const mesh = new THREE.Points(geometry, material);
+                        addMesh(mesh, 0, -30);
+                    }
                     //Testo 3D
                     {
                         const loader = new THREE.FontLoader();
