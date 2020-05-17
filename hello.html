@@ -15,6 +15,15 @@
 
                 const scene = new THREE.Scene();
 
+                //Luce direzionale
+                {
+                    const color = 0xFFFFFF;
+                    const intensity = 1;
+                    const light = new THREE.DirectionalLight(color, intensity); //Default posizione e orientamento = (0,0,0)
+                    light.position.set(-1, 2, 4); //Cambio la posizione
+                    scene.add(light);
+                }
+
                 //Cubo
                 let cube;
                 {
@@ -23,7 +32,7 @@
                     const boxDepth = 1;
                     const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
-                    const material = new THREE.MeshBasicMaterial({color: 0x44aa88});  // greenish blue
+                    const material = new THREE.MeshPhongMaterial({color: 0x44aa88}); //Materiale per rispondere alla luca (materiale di default non lo fa)
 
                     cube = new THREE.Mesh(geometry, material);
                 }
