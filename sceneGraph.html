@@ -22,7 +22,7 @@
                 const near = 0.1;
                 const far = 1000;
                 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-                camera.position.set(0, 0, 150);
+                camera.position.set(0, 0, 50);
                 camera.up.set(0, 1, 0);
                 camera.lookAt(0, 0, 0);
 
@@ -38,6 +38,35 @@
 
                 const objects = [];
 
+                //Geometria sfera
+                const radius = 1, subdSegments = 6;
+                const sphereGeometry = new THREE.SphereBufferGeometry(radius, subdSegments);
+
+                const solarSystem = new THREE.Object3D(); //Padre di tutti gli oggetti, in questo modo le trasfrormazioni specifiche di sunMesh non vengono ereditate da earthMesh
+                scene.add(solarSystem);
+                objects.push(solarSystem);
+
+                const sunMesh = new THREE.Mesh(sphereGeometry, new THREE.MeshPhongMaterial({emissive: 0xFFFF00}));
+                sunMesh.scale.set(5,5,5); //Faccio il sole più grande degli altri elementi
+                solarSystem.add(sunMesh);
+                //objects.push(sunMesh); //non lo aggiungo ad objects cosi non lo faccio ruotare due volte (lo fara già ruotare la rotazione di solarSystem)
+
+                const earthOrbit = new THREE.Object3D(); //Analogo solarSystem ma per la terra
+                earthOrbit.position.x = 10;
+                solarSystem.add(earthOrbit);
+                objects.push(earthOrbit);
+
+                const earthMesh = new THREE.Mesh(sphereGeometry, new THREE.MeshPhongMaterial({color: 0x2233FF, emissive: 0x112244}));
+                earthOrbit.add(earthMesh);
+                //objects.push(earthMesh); //non lo aggiungo ad objects cosi non lo faccio ruotare due volte (lo fara già ruotare la rotazione di solarSystem)
+
+                const moonMesh = new THREE.Mesh(sphereGeometry, new THREE.MeshPhongMaterial({color: 0x888888, emissive: 0x222222}));
+                moonMesh.position.x = 2;
+                moonMesh.scale.set(0.5,0.5,0.5);
+                earthOrbit.add(moonMesh);
+                objects.push(moonMesh); //dato che non ho oggetti in orbita non creo moonOrbit, però quindi per farla girare su se stessa devo aggiungerla ad objects
+
+
                 function render(time){
                     time *= 0.001;
 
@@ -51,6 +80,7 @@
 
                     const rot = time;
                     objects.forEach((obj) => {
+                        obj.rotation.z = time; //ruotare un oggetto fa ruotare i suoi figli relativamente a lui
                     });
 
                     renderer.render(scene, camera);
