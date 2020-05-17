@@ -51,10 +51,18 @@
                     return material;
                 }
 
-                function addSolidGeometry(x, y, geometry) {
+                function addSolidGeometry(x, y, geometry, rotateAroundCenter) {
                     const material = createMaterial();
                     const mesh = new THREE.Mesh(geometry, material);
-                    addMesh(mesh, x, y);
+
+                    if(rotateAroundCenter){
+                        geometry.computeBoundingBox();
+                        geometry.boundingBox.getCenter(mesh.position).multiplyScalar(-1);
+                        const parent = new THREE.Object3D();
+                        parent.add(mesh);
+                        addMesh(parent, x,y);
+                    } else
+                        addMesh(mesh, x, y);
                 }
 
                 function addLineGeometry(x, y, geometry) {
@@ -135,7 +143,7 @@
                                 bevelSize: 0.3,  
                                 bevelSegments: 5,  
                             });
-                            addSolidGeometry(0, 30, geometry);
+                            addSolidGeometry(0, 30, geometry, true);
                         });
                     }                
                 }
