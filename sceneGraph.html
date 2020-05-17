@@ -13,9 +13,11 @@
         </style>
         <script type="module">
             import * as THREE from './resources/threejs/three.module.js'; // Vedi nota fondo pagina gestione paths a: https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html
+            import {GUI} from 'https://threejsfundamentals.org/threejs/../3rdparty/dat.gui.module.js';
             function main(){
                 const canvas = document.querySelector('#c');
                 const renderer = new THREE.WebGLRenderer({canvas});
+                const gui = new GUI();
 
                 const fov = 40;
                 const aspect = 2;  // the canvas default
@@ -42,12 +44,35 @@
                 const radius = 1, subdSegments = 6;
                 const sphereGeometry = new THREE.SphereBufferGeometry(radius, subdSegments);
 
+                class GuiAxisHelper {
+                    constructor(node) {
+                        const axes = new THREE.AxesHelper();
+                        axes.material.depthTest = false;
+                        axes.renderOrder = 2;  // after the grid
+                        node.add(axes);
+                        this.axes = axes;
+                        this.visible = false;
+                    }
+                    get visible() {
+                        return this._visible;
+                    }
+                    set visible(v) {
+                        this._visible = v;
+                        this.axes.visible = v; //Propriertà per mostrare o nascondere un nodo della sceneGraph
+                    }
+                }
+
+                function makeAxisGuiLabel(node, label) {
+                    const helper = new GuiAxisHelper(node);
+                    gui.add(helper, 'visible').name(label);
+                }
+
                 const solarSystem = new THREE.Object3D(); //Padre di tutti gli oggetti, in questo modo le trasfrormazioni specifiche di sunMesh non vengono ereditate da earthMesh
                 scene.add(solarSystem);
                 objects.push(solarSystem);
 
                 const sunMesh = new THREE.Mesh(sphereGeometry, new THREE.MeshPhongMaterial({emissive: 0xFFFF00}));
-                showLocalAxes(sunMesh);
+                makeAxisGuiLabel(sunMesh, 'sunMesh axis');
                 sunMesh.scale.set(5,5,5); //Faccio il sole più grande degli altri elementi
                 solarSystem.add(sunMesh);
                 //objects.push(sunMesh); //non lo aggiungo ad objects cosi non lo faccio ruotare due volte (lo fara già ruotare la rotazione di solarSystem)
@@ -58,18 +83,19 @@
                 objects.push(earthOrbit);
 
                 const earthMesh = new THREE.Mesh(sphereGeometry, new THREE.MeshPhongMaterial({color: 0x2233FF, emissive: 0x112244}));
-                showLocalAxes(earthMesh);
+                makeAxisGuiLabel(earthMesh, 'earthMesh axis');
                 earthOrbit.add(earthMesh);
                 //objects.push(earthMesh); //non lo aggiungo ad objects cosi non lo faccio ruotare due volte (lo fara già ruotare la rotazione di solarSystem)
 
                 const moonMesh = new THREE.Mesh(sphereGeometry, new THREE.MeshPhongMaterial({color: 0x888888, emissive: 0x222222}));
-                showLocalAxes(moonMesh);
+                makeAxisGuiLabel(moonMesh, 'moonMesh axis');
                 moonMesh.position.x = 2;
                 moonMesh.scale.set(0.5,0.5,0.5);
                 earthOrbit.add(moonMesh);
                 objects.push(moonMesh); //dato che non ho oggetti in orbita non creo moonOrbit, però quindi per farla girare su se stessa devo aggiungerla ad objects
 
                 function showLocalAxes(node){
+                    return;
                     const axes = new THREE.AxesHelper();
                     axes.material.depthTest = false; //Disabilità il depth test per gl'assi in modo da mostrarli anche se all'interno della mesh
                     axes.renderOrder = 1; //Li renderizza con ordine 1 (di default gli oggetti hanno ordine 0), quindi dopo gli altri
