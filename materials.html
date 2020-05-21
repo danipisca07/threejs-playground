@@ -61,8 +61,8 @@
                 let currRow = 0;
 
                 function addSphere(material) {
-                    addSolidGeometry(-40 + spread*curr++, 20 + spread*currRow, geometry, material);
-                    if(curr == eachRow-1){
+                    addSolidGeometry(-40 + spread*curr++, 20 - spread*currRow, geometry, material);
+                    if(curr == eachRow){
                         currRow++;
                         curr = 0;
                     }
