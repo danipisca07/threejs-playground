@@ -1,0 +1,100 @@
+<html>
+    <head>
+        <style>
+            html, body {
+               margin: 0;
+               height: 100%;
+            }
+            #c {
+               width: 100%;
+               height: 100%;
+               display: block;
+            }
+        </style>
+        <script type="module">
+            import * as THREE from './resources/threejs/three.module.js'; // Vedi nota fondo pagina gestione paths a: https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html
+            function main(){
+                const canvas = document.querySelector('#c');
+                const renderer = new THREE.WebGLRenderer({canvas});
+
+                const fov = 40;
+                const aspect = 2;  // the canvas default
+                const near = 0.1;
+                const far = 1000;
+                const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+                camera.position.z = 120;
+
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xAAAAAA); //Colore background
+
+                //Luce direzionale
+                {
+                    const color = 0xFFFFFF;
+                    const intensity = 1;
+                    const light = new THREE.DirectionalLight(color, intensity); //Default posizione e orientamento = (0,0,0)
+                    light.position.set(-1, 2, 4); //Cambio la posizione
+                    scene.add(light);
+                }
+
+                const objects = [];
+
+                function addSolidGeometry(x, y, geometry, material) {
+                    const mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.x = x;
+                    mesh.position.y = y;
+                    scene.add(mesh);
+                    objects.push(mesh)
+                }
+
+                // https://threejsfundamentals.org/threejs/lessons/threejs-textures.html
+                {   
+                    const width = 8;
+                    const height = 8;
+                    const depth = 8;
+                    const geometry = new THREE.BoxBufferGeometry(width, height, depth);
+                    addSolidGeometry(0, 0, geometry);
+                    
+                }
+
+                function render(time){
+                    time *= 0.001;
+
+                    //Ridimensionamento responsive del canvas
+                    if (resizeRendererToDisplaySize(renderer)) {
+                        //Se ho ridimensionato il canvas devo aggiornare l'aspect della camera
+                        const canvas = renderer.domElement;
+                        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                        camera.updateProjectionMatrix();
+                    }
+
+                    const rot = time;
+                    objects.forEach((obj) => {
+                        obj.rotation.x = rot;
+                        obj.rotation.y = rot;
+                    });
+
+                    renderer.render(scene, camera);
+                    requestAnimationFrame(render);
+                }
+                requestAnimationFrame(render);
+
+                //Aggiorna le dimensioni del rendering del canvas a quelle effettive del canvas sulla pagina
+                function resizeRendererToDisplaySize(renderer) {
+                    const canvas = renderer.domElement;
+                    const width = canvas.clientWidth;
+                    const height = canvas.clientHeight;
+                    const needResize = canvas.width !== width || canvas.height !== height;
+                    if (needResize) {
+                        renderer.setSize(width, height, false);
+                    }
+                    return needResize;
+                }
+            }
+            
+            main();
+        </script>
+    </head>
+    <body>
+        <canvas id="c"></canvas>
+    </body>
+</html>
