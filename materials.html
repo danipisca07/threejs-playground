@@ -68,7 +68,46 @@
                     }
                 }
 
-                {                    
+                // https://threejsfundamentals.org/threejs/lessons/threejs-materials.html
+                {   
+                    const basic = new THREE.MeshBasicMaterial({color: 'green'});
+                    addSphere(basic);
+
+                    const lambert = new THREE.MeshLambertMaterial({ color: 'green' });
+                    addSphere(lambert);
+
+                    const phong = new THREE.MeshPhongMaterial({ color: 'green' });
+                    addSphere(phong);
+                    
+                    const phongShine = new THREE.MeshPhongMaterial({ color: 'green', shininess: 150 });
+                    addSphere(phongShine);
+
+                    const toonShine = new THREE.MeshToonMaterial({ color: 'green', shininess: 150 });
+                    addSphere(toonShine);
+
+                    //Standard
+                    {
+                        addSphere(new THREE.MeshStandardMaterial({ color: 'green', roughness: 0 , metalness: 0 }));
+                        addSphere(new THREE.MeshStandardMaterial({ color: 'green', roughness: 0 , metalness: 1 }));
+                        addSphere(new THREE.MeshStandardMaterial({ color: 'green', roughness: 1 , metalness: 0 }));
+                        addSphere(new THREE.MeshStandardMaterial({ color: 'green', roughness: 1 , metalness: 1 }));
+                        addSphere(new THREE.MeshStandardMaterial({ color: 'green', roughness: 0.5 , metalness: 0.5 }));
+                    }
+
+                    //Physical
+                    {
+                        let basic = { color: 'green', roughness: 0.5 , metalness: 0.5};
+
+                        basic.clearcoat = 0; basic.clearcoatRoughness = 0;addSphere(new THREE.MeshPhysicalMaterial(basic));
+                        basic.clearcoat = 0; basic.clearcoatRoughness = 1;addSphere(new THREE.MeshPhysicalMaterial(basic));
+                        basic.clearcoat = 1; basic.clearcoatRoughness = 0;addSphere(new THREE.MeshPhysicalMaterial(basic));
+                        basic.clearcoat = 1; basic.clearcoatRoughness = 1;addSphere(new THREE.MeshPhysicalMaterial(basic));
+                        basic.clearcoat = 0.5; basic.clearcoatRoughness = 0.5;addSphere(new THREE.MeshPhysicalMaterial(basic));
+                    }
+
+                    addSphere(new THREE.MeshDepthMaterial());
+                    addSphere(new THREE.MeshNormalMaterial());
+
                     
                 }
 
