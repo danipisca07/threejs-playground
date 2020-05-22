@@ -29,6 +29,15 @@
                 }
             }
 
+            //Funzione per gestire i vettori nella gui
+            function makeXYZGUI(gui, vector3, name, onChangeFn) {
+                const folder = gui.addFolder(name);
+                folder.add(vector3, 'x', -10, 10).onChange(onChangeFn);
+                folder.add(vector3, 'y', 0, 10).onChange(onChangeFn);
+                folder.add(vector3, 'z', -10, 10).onChange(onChangeFn);
+                folder.open();
+            }
+
             function main(){
                 const canvas = document.querySelector('#c');
                 const renderer = new THREE.WebGLRenderer({canvas});
@@ -58,13 +67,23 @@
                     scene.add(light);
                     scene.add(light.target);
 
+                    //Helper per visualizzare la luce
+                    const helper = new THREE.DirectionalLightHelper(light);
+                    scene.add(helper);
+
+                    function updateLight(){
+                        light.target.updateMatrixWorld();
+                        helper.update();
+                    }
+                    updateLight();
+
                     //Controlli UI per luce
                     {
                         gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
                         gui.add(light, 'intensity', 0, 2, 0.01);
-                        gui.add(light.target.position, 'x', -10, 10);
-                        gui.add(light.target.position, 'z', -10, 10);
-                        gui.add(light.target.position, 'y', 0, 10);
+
+                        makeXYZGUI(gui, light.position, 'position', updateLight);
+                        makeXYZGUI(gui, light.target.position, 'target', updateLight);
                     }
                 }
 
