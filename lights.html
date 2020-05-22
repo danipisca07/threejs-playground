@@ -32,12 +32,11 @@
                 const scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xAAAAAA); //Colore background
 
-                //Luce direzionale
+                //Luce ambientale
                 {
                     const color = 0xFFFFFF;
                     const intensity = 1;
-                    const light = new THREE.DirectionalLight(color, intensity); //Default posizione e orientamento = (0,0,0)
-                    light.position.set(-1, 2, 4); //Cambio la posizione
+                    const light = new THREE.AmbientLight(color, intensity);
                     scene.add(light);
                 }
 
