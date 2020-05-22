@@ -14,9 +14,25 @@
         <script type="module">
             import * as THREE from './resources/threejs/three.js-master/build/three.module.js'; // Vedi nota fondo pagina gestione paths a: https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html
             import {OrbitControls} from './resources/threejs/three.js-master/examples/jsm/controls/OrbitControls.js';
+            import {GUI} from './resources/dat.gui.module.js';
+
+            class ColorGUIHelper {
+                constructor(object, prop) {
+                    this.object = object;
+                    this.prop = prop;
+                }
+                get value() {
+                    return `#${this.object[this.prop].getHexString()}`;
+                }
+                set value(hexString) {
+                    this.object[this.prop].set(hexString);
+                }
+            }
+
             function main(){
                 const canvas = document.querySelector('#c');
                 const renderer = new THREE.WebGLRenderer({canvas});
+                const gui = new GUI();
 
                 const fov = 45;
                 const aspect = 2;  // the canvas default
@@ -38,6 +54,12 @@
                     const intensity = 1;
                     const light = new THREE.AmbientLight(color, intensity);
                     scene.add(light);
+
+                    //Controlli UI per luce
+                    {
+                        gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
+                        gui.add(light, 'intensity', 0, 2, 0.01);
+                    }
                 }
 
                 const objects = [];
