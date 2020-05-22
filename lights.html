@@ -48,16 +48,18 @@
                 const scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xAAAAAA); //Colore background
 
-                //Luce ambientale
+                //Luce "emisfero"
                 {
-                    const color = 0xFFFFFF;
+                    const skyColor = 0xB1E1FF;  // light blue
+                    const groundColor = 0xB97A20;  // brownish orange
                     const intensity = 1;
-                    const light = new THREE.AmbientLight(color, intensity);
+                    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
                     scene.add(light);
 
                     //Controlli UI per luce
                     {
-                        gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
+                        gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('skyColor');
+                        gui.addColor(new ColorGUIHelper(light, 'groundColor'), 'value').name('groundColor');
                         gui.add(light, 'intensity', 0, 2, 0.01);
                     }
                 }
