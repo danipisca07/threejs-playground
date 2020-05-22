@@ -48,19 +48,23 @@
                 const scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xAAAAAA); //Colore background
 
-                //Luce "emisfero"
+                //Luce "direzionale"
                 {
-                    const skyColor = 0xB1E1FF;  // light blue
-                    const groundColor = 0xB97A20;  // brownish orange
+                    const color = 0xFFFFFF;
                     const intensity = 1;
-                    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+                    const light = new THREE.DirectionalLight(color, intensity);
+                    light.position.set(-20, 0, 0); //Posizione e target servono solo per dare la direzione come differenza, la luce è sempre globale
+                    light.target.position.set(-25, 0, 0);
                     scene.add(light);
+                    scene.add(light.target);
 
                     //Controlli UI per luce
                     {
-                        gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('skyColor');
-                        gui.addColor(new ColorGUIHelper(light, 'groundColor'), 'value').name('groundColor');
+                        gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
                         gui.add(light, 'intensity', 0, 2, 0.01);
+                        gui.add(light.target.position, 'x', -10, 10);
+                        gui.add(light.target.position, 'z', -10, 10);
+                        gui.add(light.target.position, 'y', 0, 10);
                     }
                 }
 
