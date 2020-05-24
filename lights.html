@@ -42,6 +42,7 @@
                 const canvas = document.querySelector('#c');
                 const renderer = new THREE.WebGLRenderer({canvas});
                 renderer.physicallyCorrectLights = true;
+                renderer.shadowMap.enabled = true;
                 const gui = new GUI();
 
                 const fov = 45;
@@ -66,6 +67,7 @@
                     light.position.set(0, 10, 0);
                     light.decay = 2;
                     light.distance = Infinity;
+                    light.castShadow = true;
                     scene.add(light);
 
                     //Helper per visualizzare la luce
@@ -89,7 +91,7 @@
 
                 const objects = [];
 
-                // https://threejsfundamentals.org/threejs/lessons/threejs-lights.html
+                // https://threejsfundamentals.org/threejs/lessons/threejs-shadows.html
                 {   
                     //Piano centrale
                     {
@@ -110,6 +112,7 @@
                         });
                         const mesh = new THREE.Mesh(planeGeo, planeMat);
                         mesh.rotation.x = Math.PI * -.5; //Plane è sul piano XY quindi lo ruoto sul piano XZ
+                        mesh.receiveShadow = true;
                         scene.add(mesh);
                     }
 
@@ -120,6 +123,8 @@
                         const cubeMat = new THREE.MeshPhongMaterial({color: '#8AC'});
                         const mesh = new THREE.Mesh(cubeGeo, cubeMat);
                         mesh.position.set(cubeSize + 1, cubeSize, 0);
+                        mesh.castShadow = true;
+                        mesh.receiveShadow = true;
                         scene.add(mesh);
                         objects.push(mesh);
                     }  
@@ -130,6 +135,8 @@
                         const sphereMat = new THREE.MeshPhongMaterial({color: 'lightgreen'});
                         const mesh = new THREE.Mesh(sphereGeo, sphereMat);
                         mesh.position.set(-radius, radius, 0);
+                        mesh.castShadow = true;
+                        mesh.receiveShadow = true;
                         scene.add(mesh);
                         objects.push(mesh);
                     }            
