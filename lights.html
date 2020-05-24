@@ -41,6 +41,7 @@
             function main(){
                 const canvas = document.querySelector('#c');
                 const renderer = new THREE.WebGLRenderer({canvas});
+                renderer.physicallyCorrectLights = true;
                 const gui = new GUI();
 
                 const fov = 45;
@@ -63,7 +64,8 @@
                     const intensity = 1;
                     const light = new THREE.PointLight(color, intensity);
                     light.position.set(0, 10, 0);
-                    light.distance = 0;//La luce punto ha anche la proprietà distance, se 0 è infinita, altrimenti la luce "decade" linearmente fino a distance dove è = 0
+                    light.decay = 2;
+                    light.distance = Infinity;
                     scene.add(light);
 
                     //Helper per visualizzare la luce
@@ -78,8 +80,8 @@
                     {
                         const gui = new GUI();
                         gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
-                        gui.add(light, 'intensity', 0, 2, 0.01);
-                        gui.add(light, 'distance', 0, 40).onChange(updateLight);
+                        gui.add(light, 'decay', 0, 4, 0.01);
+                        gui.add(light, 'power', 0, 2000);
 
                         makeXYZGUI(gui, light.position, 'position', updateLight);
                     }
