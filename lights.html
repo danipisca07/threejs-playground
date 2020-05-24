@@ -29,9 +29,48 @@
                 }
             }
 
+            class DimensionGUIHelper {
+                constructor(obj, minProp, maxProp) {
+                    this.obj = obj;
+                    this.minProp = minProp;
+                    this.maxProp = maxProp;
+                }
+                get value() {
+                    return this.obj[this.maxProp] * 2;
+                }
+                set value(v) {
+                    this.obj[this.maxProp] = v /  2;
+                    this.obj[this.minProp] = v / -2;
+                }
+            }
+
+            class MinMaxGUIHelper {
+                constructor(obj, minProp, maxProp, minDif) {
+                    this.obj = obj;
+                    this.minProp = minProp;
+                    this.maxProp = maxProp;
+                    this.minDif = minDif;
+                }
+                get min() {
+                    return this.obj[this.minProp];
+                }
+                set min(v) {
+                    this.obj[this.minProp] = v;
+                    this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
+                }
+                get max() {
+                    return this.obj[this.maxProp];
+                }
+                set max(v) {
+                    this.obj[this.maxProp] = v;
+                    this.min = this.min;  // this will call the min setter
+                }
+            }
+
             function main(){
                 const canvas = document.querySelector('#c');
                 const renderer = new THREE.WebGLRenderer({canvas});
+                renderer.shadowMap.enabled = true;
                 const gui = new GUI();
 
                 const fov = 45;
@@ -53,19 +92,55 @@
                     const color = 0xFFFFFF;
                     const intensity = 1;
                     const light = new THREE.DirectionalLight(color, intensity);
-                    light.position.set(-20, 0, 0); //Posizione e target servono solo per dare la direzione come differenza, la luce è sempre globale
-                    light.target.position.set(-25, 0, 0);
+                    light.position.set(0, 10, 0); //Posizione e target servono solo per dare la direzione come differenza, la luce è sempre globale
+                    light.target.position.set(-4,0,-4);
+                    light.castShadow = true;
+                    //Imposazioni camera per proiezione shadow mapping
+                    light.shadow.camera.left = -15;
+                    light.shadow.camera.right = 15;
+                    light.shadow.camera.top = 15;
+                    light.shadow.camera.bottom = -15;
+                    light.shadow.mapSize.width = 512;  // default
+                    light.shadow.mapSize.height = 512; // default
+                    light.shadow.camera.near = 0.5;    // default
+                    light.shadow.camera.far = 500;     // default
                     scene.add(light);
                     scene.add(light.target);
+
+                    //Visualizzatore camera della proiezione per la shadow map
+                    const cameraHelper = new THREE.CameraHelper(light.shadow.camera);
+                    scene.add(cameraHelper);
 
                     //Controlli UI per luce
                     {
                         gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
                         gui.add(light, 'intensity', 0, 2, 0.01);
-                        gui.add(light.target.position, 'x', -10, 10);
-                        gui.add(light.target.position, 'z', -10, 10);
-                        gui.add(light.target.position, 'y', 0, 10);
+                        {
+                            const folder = gui.addFolder('Shadow Camera');
+                            folder.open();
+                            folder.add(new DimensionGUIHelper(light.shadow.camera, 'left', 'right'), 'value', 1, 100)
+                                .name('width')
+                                .onChange(updateCamera);
+                            folder.add(new DimensionGUIHelper(light.shadow.camera, 'bottom', 'top'), 'value', 1, 100)
+                                .name('height')
+                                .onChange(updateCamera);
+                            const minMaxGUIHelper = new MinMaxGUIHelper(light.shadow.camera, 'near', 'far', 0.1);
+                            folder.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near').onChange(updateCamera);
+                            folder.add(minMaxGUIHelper, 'max', 0.1, 50, 0.1).name('far').onChange(updateCamera);
+                            folder.add(light.shadow.camera, 'zoom', 0.01, 1.5, 0.01).onChange(updateCamera);
+                        }
                     }
+
+                    function updateCamera() {
+                        // update the light target's matrixWorld because it's needed by the helper
+                        light.target.updateMatrixWorld();
+                        cameraHelper.update();
+                        // update the light's shadow camera's projection matrix
+                        light.shadow.camera.updateProjectionMatrix();
+                        // and now update the camera helper we're using to show the light's shadow camera
+                        cameraHelper.update();
+                    }
+                    updateCamera();
                 }
 
                 const objects = [];
@@ -91,6 +166,7 @@
                         });
                         const mesh = new THREE.Mesh(planeGeo, planeMat);
                         mesh.rotation.x = Math.PI * -.5; //Plane è sul piano XY quindi lo ruoto sul piano XZ
+                        mesh.receiveShadow = true;
                         scene.add(mesh);
                     }
 
@@ -101,6 +177,8 @@
                         const cubeMat = new THREE.MeshPhongMaterial({color: '#8AC'});
                         const mesh = new THREE.Mesh(cubeGeo, cubeMat);
                         mesh.position.set(cubeSize + 1, cubeSize, 0);
+                        mesh.receiveShadow = true;
+                        mesh.castShadow = true;
                         scene.add(mesh);
                         objects.push(mesh);
                     }  
@@ -111,6 +189,8 @@
                         const sphereMat = new THREE.MeshPhongMaterial({color: 'lightgreen'});
                         const mesh = new THREE.Mesh(sphereGeo, sphereMat);
                         mesh.position.set(-radius, radius, 0);
+                        mesh.receiveShadow = true;
+                        mesh.castShadow = true;
                         scene.add(mesh);
                         objects.push(mesh);
                     }            
